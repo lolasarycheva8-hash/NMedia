@@ -1,2 +1,2 @@
-Add localization and icon
 Hello, World
+Add localization and icon

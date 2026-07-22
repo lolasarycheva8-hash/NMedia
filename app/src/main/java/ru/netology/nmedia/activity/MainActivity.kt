@@ -1,41 +1,41 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.activity
+
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import ru.netology.nmedia.R
+import ru.netology.nmedia.viewmodel.PostViewModel
+
 class MainActivity : AppCompatActivity() {
-    private var likes = 10
-    private var isLiked = false
-    private var shares = 5
-    private val views = 5
+
+    private val viewModel: PostViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val btnLike = findViewById<ImageButton>(R.id.btnLike)
         val tvLikes = findViewById<TextView>(R.id.tvLikes)
         val btnShare = findViewById<ImageButton>(R.id.btnShare)
         val tvShares = findViewById<TextView>(R.id.tvShares)
         val tvViews = findViewById<TextView>(R.id.tvViews)
-        tvLikes.text = formatCount(likes)
-        tvShares.text = formatCount(shares)
-        tvViews.text = formatCount(views)
-        btnLike.setOnClickListener {
-            if (isLiked) {
-                likes--
-                isLiked = false
-                btnLike.setImageResource(R.drawable.ic_like)
-            } else {
-                likes++
-                isLiked = true
-                btnLike.setImageResource(R.drawable.ic_like_filled)
-            }
-            tvLikes.text = formatCount(likes)
+
+        viewModel.data.observe(this) { posts ->
+            val post = posts.firstOrNull() ?: return@observe
+            tvLikes.text = formatCount(post.likes)
+            tvShares.text = formatCount(post.shares)
+            tvViews.text = formatCount(post.views)
+            btnLike.setImageResource(
+                if (post.likedByMe) R.drawable.ic_like_filled else R.drawable.ic_like
+            )
         }
-        btnShare.setOnClickListener {
-            shares++
-            tvShares.text = formatCount(shares)
-        }
+
+        btnLike.setOnClickListener { viewModel.likeById(1L) }
+        btnShare.setOnClickListener { viewModel.shareById(1L) }
     }
+
     fun formatCount(count: Int): String {
         return when {
             count < 1_000 -> count.toString()
